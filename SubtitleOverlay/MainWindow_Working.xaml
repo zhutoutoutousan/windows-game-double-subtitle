@@ -87,8 +87,8 @@
                         </StackPanel>
 
                         <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,10">
-                            <CheckBox x:Name="ShowOriginalCheckBox" Content="Show Original Text" IsChecked="True" Width="150"/>
-                            <CheckBox x:Name="ShowTranslatedCheckBox" Content="Show Translated Text" IsChecked="True" Width="150"/>
+                            <CheckBox x:Name="ShowOriginalCheckBox" Content="Show Original Text" IsChecked="True" Width="150" Checked="ShowOriginalCheckBox_Changed" Unchecked="ShowOriginalCheckBox_Changed"/>
+                            <CheckBox x:Name="ShowTranslatedCheckBox" Content="Show Translated Text" IsChecked="True" Width="150" Checked="ShowTranslatedCheckBox_Changed" Unchecked="ShowTranslatedCheckBox_Changed"/>
                         </StackPanel>
 
                                                                          <StackPanel Grid.Row="2" Margin="0,0,0,10">
@@ -147,6 +147,10 @@
                                 Width="130" Height="35" Margin="0,0,10,0" 
                                 IsEnabled="False"
                                 Click="HideOverlayButton_Click"/>
+                        <Button x:Name="QuitButton" Content="🚪 Quit Application" 
+                                Width="130" Height="35" Margin="0,0,10,0"
+                                Background="LightCoral" Foreground="White"
+                                Click="QuitButton_Click"/>
                     </StackPanel>
                 </GroupBox>
 
@@ -166,7 +170,7 @@
 
         <!-- Footer -->
         <TextBlock Grid.Row="2" 
-                   Text="Hotkeys: Ctrl+Shift+S (Toggle Overlay) | Ctrl+Shift+R (Toggle Recognition) | Ctrl+Shift+Q (Exit)" 
+                   Text="Hotkeys: Ctrl+Shift+S (Toggle Overlay) | Ctrl+Shift+R (Toggle Recognition) | Ctrl+Shift+Q (Exit) | Or use the Quit button" 
                    HorizontalAlignment="Center" 
                    Margin="0,15,0,0"
                    FontSize="10"
