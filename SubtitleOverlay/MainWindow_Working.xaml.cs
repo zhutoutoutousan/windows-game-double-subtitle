@@ -24,10 +24,18 @@ namespace SubtitleOverlay
         private bool _useFreeSpeechService = true; // Default to free service
         private Rectangle _captureArea = Rectangle.Empty;
         private string _targetLanguage = "zh-CN"; // Default target language (Chinese)
+        private SubtitleSettings _subtitleSettings; // Add subtitle settings
 
         public MainWindow_Working()
         {
             InitializeComponent();
+            
+            // Initialize subtitle settings
+            _subtitleSettings = new SubtitleSettings
+            {
+                ShowOriginalText = true,
+                ShowTranslatedText = true
+            };
             
             // Initialize services
             _audioCaptureService = new SimpleAudioCaptureService();
@@ -53,6 +61,14 @@ namespace SubtitleOverlay
             {
                 // Setup event handlers after controls are fully loaded
                 FontSizeSlider.ValueChanged += FontSizeSlider_ValueChanged;
+                
+                // Initialize subtitle settings from checkboxes
+                if (ShowOriginalCheckBox != null && ShowTranslatedCheckBox != null)
+                {
+                    _subtitleSettings.ShowOriginalText = ShowOriginalCheckBox.IsChecked == true;
+                    _subtitleSettings.ShowTranslatedText = ShowTranslatedCheckBox.IsChecked == true;
+                    AddLog($"📝 Subtitle settings initialized: Show Original={_subtitleSettings.ShowOriginalText}, Show Translation={_subtitleSettings.ShowTranslatedText}");
+                }
                 
                 // Set initial audio mode status
                 if (AudioModeStatusText != null)
@@ -373,6 +389,73 @@ namespace SubtitleOverlay
             }
         }
 
+        // Add methods to update subtitle settings
+        public void UpdateSubtitleSettings(bool showOriginalText, bool showTranslatedText)
+        {
+            try
+            {
+                _subtitleSettings.ShowOriginalText = showOriginalText;
+                _subtitleSettings.ShowTranslatedText = showTranslatedText;
+                
+                // Update the overlay window if it exists
+                if (_overlayWindow != null)
+                {
+                    // Create a new overlay window with updated settings
+                    _overlayWindow.Close();
+                    _overlayWindow = new OverlayWindow_Working(_subtitleSettings);
+                    
+                    // Show it again if it was visible
+                    if (_isOverlayVisible)
+                    {
+                        _overlayWindow.Show();
+                    }
+                }
+                
+                AddLog($"📝 Subtitle settings updated: Show Original={showOriginalText}, Show Translation={showTranslatedText}");
+            }
+            catch (Exception ex)
+            {
+                // Log the error but don't crash the application
+                System.Diagnostics.Debug.WriteLine($"UpdateSubtitleSettings error: {ex.Message}");
+                AddLog($"❌ Error updating subtitle settings: {ex.Message}");
+            }
+        }
+
+        // Event handlers for subtitle display checkboxes
+        private void ShowOriginalCheckBox_Changed(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                // Only update if controls are fully loaded and not during initialization
+                if (ShowOriginalCheckBox != null && ShowTranslatedCheckBox != null && IsLoaded)
+                {
+                    UpdateSubtitleSettings(ShowOriginalCheckBox.IsChecked == true, ShowTranslatedCheckBox.IsChecked == true);
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log the error but don't crash the application
+                System.Diagnostics.Debug.WriteLine($"ShowOriginalCheckBox_Changed error: {ex.Message}");
+            }
+        }
+
+        private void ShowTranslatedCheckBox_Changed(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                // Only update if controls are fully loaded and not during initialization
+                if (ShowOriginalCheckBox != null && ShowTranslatedCheckBox != null && IsLoaded)
+                {
+                    UpdateSubtitleSettings(ShowOriginalCheckBox.IsChecked == true, ShowTranslatedCheckBox.IsChecked == true);
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log the error but don't crash the application
+                System.Diagnostics.Debug.WriteLine($"ShowTranslatedCheckBox_Changed error: {ex.Message}");
+            }
+        }
+
         private void TestConnectionButton_Click(object sender, RoutedEventArgs e)
         {
             var apiKey = ApiKeyPasswordBox.Password;
@@ -403,7 +486,7 @@ namespace SubtitleOverlay
             // Ensure overlay is visible for testing
             if (_overlayWindow == null)
             {
-                _overlayWindow = new OverlayWindow_Working();
+                _overlayWindow = new OverlayWindow_Working(_subtitleSettings);
             }
             
             if (!_isOverlayVisible)
@@ -464,7 +547,7 @@ namespace SubtitleOverlay
                 // Show overlay if not visible
                 if (_overlayWindow == null)
                 {
-                    _overlayWindow = new OverlayWindow_Working();
+                    _overlayWindow = new OverlayWindow_Working(_subtitleSettings);
                 }
                 
                 if (!_isOverlayVisible)
@@ -508,7 +591,7 @@ namespace SubtitleOverlay
                 // Show overlay if not visible
                 if (_overlayWindow == null)
                 {
-                    _overlayWindow = new OverlayWindow_Working();
+                    _overlayWindow = new OverlayWindow_Working(_subtitleSettings);
                 }
                 
                 if (!_isOverlayVisible)
@@ -783,7 +866,7 @@ namespace SubtitleOverlay
         {
             try
             {
-                if (LogTextBox != null)
+                if (LogTextBox != null && IsLoaded)
                 {
                     var timestamp = DateTime.Now.ToString("HH:mm:ss");
                     var logEntry = $"[{timestamp}] {message}";
@@ -1195,6 +1278,129 @@ namespace SubtitleOverlay
                     AddLog($"🔄 OCR service will now translate to {_targetLanguage}");
                 }
             }
+        }
+
+        private void QuitButton_Click(object sender, RoutedEventArgs e)
+        {
+            AddLog("🚪 Quit button clicked. Shutting down gracefully...");
+            ShutdownApplication();
+        }
+
+        private void ShutdownApplication()
+        {
+            try
+            {
+                AddLog("🔄 Stopping all services...");
+                
+                // Stop OCR if running
+                if (_isOCRCapturing)
+                {
+                    AddLog("⏹️ Stopping OCR capture...");
+                    StopOCRButton_Click(this, new RoutedEventArgs());
+                }
+                
+                // Stop speech recognition if running
+                if (_isListening)
+                {
+                    AddLog("⏹️ Stopping speech recognition...");
+                    StopRecognition();
+                }
+                
+                // Hide overlay if visible
+                if (_isOverlayVisible && _overlayWindow != null)
+                {
+                    AddLog("👁️ Hiding overlay...");
+                    _overlayWindow.Hide();
+                    _isOverlayVisible = false;
+                }
+                
+                // Dispose of services
+                AddLog("🧹 Cleaning up services...");
+                
+                // Stop audio capture service
+                if (_audioCaptureService != null)
+                {
+                    _audioCaptureService.AudioDataReceived -= AudioCaptureService_AudioDataReceived;
+                    _audioCaptureService.AudioLevelChanged -= AudioCaptureService_AudioLevelChanged;
+                    _audioCaptureService.SpeechDetected -= AudioCaptureService_SpeechDetected;
+                    // SimpleAudioCaptureService doesn't implement IDisposable, just stop it
+                    _audioCaptureService.StopCaptureAsync().Wait(1000);
+                }
+                
+                // Dispose speech recognition services
+                if (_googleSpeechService != null)
+                {
+                    _googleSpeechService.SpeechRecognized -= SpeechRecognitionService_SpeechRecognized;
+                    _googleSpeechService.RecognitionError -= SpeechRecognitionService_RecognitionError;
+                    _googleSpeechService.Dispose();
+                }
+                
+                if (_freeSpeechService != null)
+                {
+                    _freeSpeechService.SpeechRecognized -= SpeechRecognitionService_SpeechRecognized;
+                    _freeSpeechService.RecognitionError -= SpeechRecognitionService_RecognitionError;
+                    _freeSpeechService.Dispose();
+                }
+                
+                // Stop OCR service (it doesn't implement IDisposable)
+                if (_ocrService != null)
+                {
+                    _ocrService.StopCaptureAsync().Wait(1000);
+                }
+                
+                // Stop translation service (it doesn't implement IDisposable)
+                if (_translationService != null)
+                {
+                    // GoogleTranslationService doesn't implement IDisposable, just clear any cached data
+                    // The HttpClient will be disposed by the DI container
+                }
+                
+                // Dispose simulation timer
+                if (_simulationTimer != null)
+                {
+                    _simulationTimer.Dispose();
+                }
+                
+                // Close overlay window
+                if (_overlayWindow != null)
+                {
+                    _overlayWindow.Close();
+                    _overlayWindow = null;
+                }
+                
+                AddLog("✅ All services stopped. Shutting down application...");
+                
+                // Give a moment for the log to be displayed
+                System.Threading.Thread.Sleep(500);
+                
+                // Shutdown the application
+                Application.Current.Shutdown();
+            }
+            catch (Exception ex)
+            {
+                AddLog($"❌ Error during shutdown: {ex.Message}");
+                // Force shutdown even if there's an error
+                Application.Current.Shutdown();
+            }
+        }
+
+        protected override void OnClosed(EventArgs e)
+        {
+            // Ensure cleanup happens even if window is closed by other means
+            // Check if application is already shutting down to avoid double cleanup
+            try
+            {
+                if (Application.Current != null)
+                {
+                    ShutdownApplication();
+                }
+            }
+            catch
+            {
+                // If we can't check Application.Current, just proceed with cleanup
+                ShutdownApplication();
+            }
+            base.OnClosed(e);
         }
     }
 }
