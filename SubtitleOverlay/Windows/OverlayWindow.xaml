@@ -1,0 +1,32 @@
+<Window x:Class="SubtitleOverlay.Windows.OverlayWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Subtitle Overlay"
+        Height="200" Width="800"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        Topmost="True"
+        ShowInTaskbar="False"
+        ResizeMode="NoResize"
+        MouseLeftButtonDown="Window_MouseLeftButtonDown">
+    
+    <Grid>
+        <Border Style="{StaticResource SubtitleBackgroundStyle}"
+                MaxWidth="{Binding MaxWidth}"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center">
+            <StackPanel>
+                <TextBlock x:Name="OriginalTextBlock"
+                           Style="{StaticResource SubtitleTextStyle}"
+                           Text=""
+                           Visibility="Collapsed"
+                           Margin="0,0,0,4"/>
+                <TextBlock x:Name="TranslatedTextBlock"
+                           Style="{StaticResource SubtitleTextStyle}"
+                           Text=""
+                           Visibility="Collapsed"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>
