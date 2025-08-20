@@ -1,0 +1,175 @@
+<Window x:Class="SubtitleOverlay.MainWindow_Working"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Subtitle Overlay Control"
+        Height="500" Width="700"
+        WindowStartupLocation="CenterScreen">
+    
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,20">
+            <TextBlock Text="Subtitle Overlay Control" 
+                       FontSize="24" 
+                       FontWeight="Bold" 
+                       HorizontalAlignment="Center"
+                       Margin="0,0,0,10"/>
+            <TextBlock Text="Real-time speech recognition and translation overlay" 
+                       FontSize="14" 
+                       Foreground="Gray" 
+                       HorizontalAlignment="Center"/>
+        </StackPanel>
+
+        <!-- Main Content -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+                <!-- Status Section -->
+                <GroupBox Header="Status" Margin="0,0,0,15">
+                    <Grid Margin="10">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,5">
+                            <TextBlock Text="Speech Recognition:" VerticalAlignment="Center" Width="150"/>
+                            <Ellipse x:Name="SpeechStatusIndicator" Width="12" Height="12" Fill="Red" Margin="0,0,10,0"/>
+                            <TextBlock x:Name="SpeechStatusText" Text="Inactive" VerticalAlignment="Center"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,5">
+                            <TextBlock Text="Translation Service:" VerticalAlignment="Center" Width="150"/>
+                            <Ellipse x:Name="TranslationStatusIndicator" Width="12" Height="12" Fill="Red" Margin="0,0,10,0"/>
+                            <TextBlock x:Name="TranslationStatusText" Text="Not configured" VerticalAlignment="Center"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,0,0,5">
+                            <TextBlock Text="Overlay:" VerticalAlignment="Center" Width="150"/>
+                            <Ellipse x:Name="OverlayStatusIndicator" Width="12" Height="12" Fill="Red" Margin="0,0,10,0"/>
+                            <TextBlock x:Name="OverlayStatusText" Text="Hidden" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Grid>
+                </GroupBox>
+
+                <!-- Settings Section -->
+                <GroupBox Header="Settings" Margin="0,0,0,15">
+                    <Grid Margin="10">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,10">
+                            <TextBlock Text="Target Language:" VerticalAlignment="Center" Width="120"/>
+                            <ComboBox x:Name="LanguageComboBox" Width="100" Margin="0,0,20,0" SelectionChanged="LanguageComboBox_SelectionChanged">
+                                <ComboBoxItem Content="English" Tag="en" IsSelected="True"/>
+                                <ComboBoxItem Content="Spanish" Tag="es"/>
+                                <ComboBoxItem Content="French" Tag="fr"/>
+                                <ComboBoxItem Content="German" Tag="de"/>
+                                <ComboBoxItem Content="Chinese" Tag="zh"/>
+                                <ComboBoxItem Content="Japanese" Tag="ja"/>
+                            </ComboBox>
+                            <TextBlock Text="Font Size:" VerticalAlignment="Center" Width="70"/>
+                            <Slider x:Name="FontSizeSlider" 
+                                    Minimum="12" Maximum="48" 
+                                    Value="24"
+                                    Width="100"/>
+                            <TextBlock x:Name="FontSizeDisplay" Text="24" VerticalAlignment="Center" Width="30" Margin="5,0,0,0"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,0,0,10">
+                            <CheckBox x:Name="ShowOriginalCheckBox" Content="Show Original Text" IsChecked="True" Width="150"/>
+                            <CheckBox x:Name="ShowTranslatedCheckBox" Content="Show Translated Text" IsChecked="True" Width="150"/>
+                        </StackPanel>
+
+                                                                         <StackPanel Grid.Row="2" Margin="0,0,0,10">
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                                <TextBlock Text="Google Speech API Key:" VerticalAlignment="Center" Width="140"/>
+                                <PasswordBox x:Name="ApiKeyPasswordBox" Width="200" Margin="0,0,10,0"/>
+                                <Button x:Name="SaveApiKeyButton" Content="Initialize Google" Width="100" Margin="0,0,10,0" Click="SaveApiKeyButton_Click"/>
+                                <Button x:Name="UseFreeServiceButton" Content="🆓 Use Free Service" Width="120" Margin="0,0,10,0" Background="LightGreen" Click="UseFreeServiceButton_Click"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
+                                <Button x:Name="TestConnectionButton" Content="Test API" Width="80" Margin="0,0,10,0" Click="TestConnectionButton_Click"/>
+                                <Button x:Name="TestSpeechButton" Content="Test Speech" Width="80" Margin="0,0,10,0" Click="TestSpeechButton_Click"/>
+                                <Button x:Name="TestOverlayButton" Content="Test Overlay" Width="80" Margin="0,0,10,0" Click="TestOverlayButton_Click"/>
+                                <Button x:Name="QuickTestButton" Content="Quick Test" Width="80" Margin="0,0,10,0" Click="QuickTestButton_Click"/>
+                                <Button x:Name="DemoModeButton" Content="Demo Mode" Width="80" Margin="0,0,10,0" Click="DemoModeButton_Click"/>
+                            </StackPanel>
+                        </StackPanel>
+                        
+                                                 <!-- OCR Section -->
+                         <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0,0,0,10">
+                             <TextBlock Text="OCR Capture Area:" VerticalAlignment="Center" Width="140"/>
+                             <TextBlock x:Name="CaptureAreaText" Text="No area selected" VerticalAlignment="Center" Width="150" Margin="0,0,10,0" Foreground="Gray"/>
+                             <Button x:Name="SelectAreaButton" Content="📷 Select Area" Width="100" Margin="0,0,10,0" Background="LightBlue" Click="SelectAreaButton_Click"/>
+                             <Button x:Name="AdjustParametersButton" Content="⚙️ Adjust Parameters" Width="120" Margin="0,0,10,0" Background="LightYellow" Click="AdjustParametersButton_Click"/>
+                             <Button x:Name="StartOCRButton" Content="🔍 Start OCR" Width="80" Margin="0,0,10,0" Background="LightGreen" Click="StartOCRButton_Click"/>
+                             <Button x:Name="StopOCRButton" Content="⏹️ Stop OCR" Width="80" Margin="0,0,10,0" Background="LightCoral" IsEnabled="False" Click="StopOCRButton_Click"/>
+                         </StackPanel>
+                         
+                         <StackPanel Grid.Row="4" Orientation="Horizontal" Margin="0,10,0,0">
+                             <TextBlock Text="Audio Capture Mode:" VerticalAlignment="Center" Width="120"/>
+                             <ComboBox x:Name="AudioModeComboBox" Width="150" Margin="0,0,10,0" SelectionChanged="AudioModeComboBox_SelectionChanged">
+                                 <ComboBoxItem Content="Simple Simulation" Tag="simple" IsSelected="True"/>
+                                 <ComboBoxItem Content="Windows API" Tag="windows"/>
+                                 <ComboBoxItem Content="NAudio (Legacy)" Tag="naudio"/>
+                             </ComboBox>
+                             <TextBlock Text="Status:" VerticalAlignment="Center" Width="50"/>
+                             <TextBlock x:Name="AudioModeStatusText" Text="Simple Mode" VerticalAlignment="Center" Width="100" Foreground="Green"/>
+                         </StackPanel>
+                    </Grid>
+                </GroupBox>
+
+                <!-- Controls Section -->
+                <GroupBox Header="Controls" Margin="0,0,0,15">
+                    <StackPanel Margin="10" Orientation="Horizontal">
+                        <Button x:Name="StartRecognitionButton" Content="Start Recognition" 
+                                Width="130" Height="35" Margin="0,0,10,0"
+                                Click="StartRecognitionButton_Click"/>
+                        <Button x:Name="StopRecognitionButton" Content="Stop Recognition" 
+                                Width="130" Height="35" Margin="0,0,10,0" 
+                                IsEnabled="False"
+                                Click="StopRecognitionButton_Click"/>
+                        <Button x:Name="ShowOverlayButton" Content="Show Overlay" 
+                                Width="130" Height="35" Margin="0,0,10,0"
+                                Click="ShowOverlayButton_Click"/>
+                        <Button x:Name="HideOverlayButton" Content="Hide Overlay" 
+                                Width="130" Height="35" Margin="0,0,10,0" 
+                                IsEnabled="False"
+                                Click="HideOverlayButton_Click"/>
+                    </StackPanel>
+                </GroupBox>
+
+                <!-- Log Section -->
+                <GroupBox Header="Activity Log" Height="120">
+                    <TextBox x:Name="LogTextBox" 
+                             IsReadOnly="True" 
+                             VerticalScrollBarVisibility="Auto"
+                             FontFamily="Consolas"
+                             FontSize="10"
+                             Background="Black"
+                             Foreground="LightGreen"
+                             Text="Application started. Ready to use."/>
+                </GroupBox>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Footer -->
+        <TextBlock Grid.Row="2" 
+                   Text="Hotkeys: Ctrl+Shift+S (Toggle Overlay) | Ctrl+Shift+R (Toggle Recognition) | Ctrl+Shift+Q (Exit)" 
+                   HorizontalAlignment="Center" 
+                   Margin="0,15,0,0"
+                   FontSize="10"
+                   Foreground="Gray"/>
+    </Grid>
+</Window>
